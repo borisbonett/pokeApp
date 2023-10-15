@@ -9,7 +9,11 @@ import { DataService } from 'src/app/shared/services/data.service';
 })
 export class PokemonsComponent implements OnInit {
 
+
+  public data:any;
   public pokemons:any[] = [];
+  public page:number = 0;
+
 
   constructor(
     private apiService:ApiService,
@@ -17,17 +21,32 @@ export class PokemonsComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    this.getInitalPokemons();
+    this.getInitalPokemons(this.page);
   }
 
-  async getInitalPokemons() {
+  public async getInitalPokemons(page:number): Promise<any> {
     try {
-      const data = await this.apiService.get('pokemon?offset=1&limit=20');
-      this.pokemons = await this.dataService.getPokemons(data);
+      this.data = await this.apiService.get(`pokemon?offset=${page}&limit=10`);
+      console.log(this.data);
+      this.pokemons = await this.dataService.getPokemons(this.data);
       console.log(this.pokemons);
 
     } catch (error) {
       console.error('Error:', error);
     }
   }
+
+  public next() {
+    console.log(this.data);
+    this.page++;
+    this.getInitalPokemons(this.page)
+  }
+
+  public prev(){
+    if(this.data.previous === null) return;
+    this.page--;
+    this.getInitalPokemons(this.page);
+  }
+
+
 }
